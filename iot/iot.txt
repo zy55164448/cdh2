@@ -1,0 +1,66 @@
+docker run -it --hostname iot --name iot --net bridge-iot --ip 172.19.0.66 \
+-p 16601:22 -p 16602:80 -p 16603:8080 -p 16604:1883 -p 16605:8966 -p 16606:9092 \
+-p 16607:8088 -p 16608:60010 -p 16609:50070 -p 16610:9200 \
+-v /storage/docker/share:/share iot:20170504 /bin/bash
+
+
+	http://192.168.1.71:8088/cluster			
+				
+	http://192.168.1.71:60010/			
+				
+	http://192.168.1.71:50070			
+
+
+ElasticSearch 9200
+
++++++++++++++++++++++ 各部品のインストール++++++++++++++++
+ 8  cd /opt
+    9  ll
+   10  cp /share/*.gz .
+   11  cp /share/*.tgz .
+   12  ll
+   13  tar -zxvf kafka_2.12-0.10.2.1.tgz
+   14  ll
+   15  tar -zxvf mosquitto-1.4.11.tar.gz
+   16  ll
+   17  tar -zxvf zookeeper-3.4.9.tar.gz
+   18  ll
+   19  mv kafka_2.12-0.10.2.1 kafka
+   20  mv mosquitto-1.4.11 mosquitto
+   21  mv zookeeper-3.4.9 zookeeper
+   22  ll
+   23  sudo apt-get install software-properties-common python-software-properties
+   24  java -version
+   25  apt-get update
+   26  sudo apt-get install software-properties-common python-software-properties
+   27  sudo apt-add-repository ppa:webupd8team/java
+   28  sudo apt-get update
+   29  jps
+   30  sudo apt-get install oracle-java8-installer
+   31  jps
+   32  ll
+   33  history
+
+
+
+
++++++++++++++++++++停止++++++++++++++++++++++++++
+
+mqtt
+ ctl + c
+ 
+kafka
+/opt/kafka/bin/kafka-server-stop.sh config/server.properties
+
+hbase 
+export JAVA_HOME=/usr/lib/jvm/java-8-oracle
+/opt/hbase/bin/stop-hbase.sh
+
+spark
+apt-get instll ssh
+sudo /etc/init.d/ssh start
+
+/opt/spark/sbin/stop-all.sh 
+
+zookeeper
+/opt/zookeeper/bin/zkServer.sh start conf/zoo.cfg

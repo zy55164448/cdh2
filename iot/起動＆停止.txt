@@ -1,0 +1,37 @@
++++++++++++++++++++　　開始　　++++++++++++++++++++++++++
+■mqtt
+ mosquitto -v &
+
+■zookeeper
+cd /opt/zookeeper/ && bin/zkServer.sh start conf/zoo.cfg
+
+
+■kafka
+cd /opt/kafka/ && bin/kafka-server-start.sh config/server.properties &
+
+■hbase 
+/opt/hbase/bin/start-hbase.sh
+
+■spark
+/opt/spark/sbin/start-master.sh -h localhost -p 7077 && /opt/spark/sbin/start-slave.sh spark://localhost:7077
+
+
++++++++++++++++++++　　停止　　++++++++++++++++++++++++++
+■mqtt
+ ctl + c
+ 
+■kafka
+/opt/kafka/bin/kafka-server-stop.sh config/server.properties
+
+■hbase 
+export JAVA_HOME=/usr/lib/jvm/java-8-oracle
+/opt/hbase/bin/stop-hbase.sh
+
+■spark
+apt-get instll ssh
+sudo /etc/init.d/ssh start
+
+/opt/spark/sbin/stop-all.sh 
+
+■zookeeper
+cd /opt/zookeeper/ && bin/zkServer.sh stop conf/zoo.cfg
