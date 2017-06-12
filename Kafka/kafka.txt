@@ -1,0 +1,66 @@
+docker run -it --hostname mqtt --name mqtt --net bridge777 --ip 172.18.0.99 -p 19901:22 -p 19902:80 -p 19903:8080 -p 1883:1883 -p 19905:8966 -v /storage/docker/share:/share ubuntu:14.04.5 /bin/bash
+
+
+docker run -it --hostname kafka1 --name kafka1 --net bridge777 --ip 172.18.0.21 -p 12101:22 -p 12102:80 -p 12103:8080 -p 12104:2181 -p 12105:9092 -v /storage/docker/share:/share ubuntu:14.04.5 /bin/bash
+
+cp /share/kafka_2.12-0.10.2.1.tgz .
+cp /share/zookeeper-3.4.9.tar.gz .
+
+
+
+tar -zxvf zookeeper-3.4.9.tar.gz
+
+
+********************* シングル　OK ****************************
+
+    2  cd /opt
+    3  ll
+    4  cp /share/kafka_2.12-0.10.2.1.tgz .
+    5  cp /share/zookeeper-3.4.9.tar.gz .
+    6  ll
+    7  tar -zxvf zookeeper-3.4.9.tar.gz
+    8  ll
+    9  cd zookeeper-3.4.9/
+
+   17  cd conf
+
+   20  cp zoo_sample.cfg zoo.cfg
+
+   29  tar -zxvf kafka_2.12-0.10.2.1.tgz
+   30  ll
+   31  cd kafka_2.12-0.10.2.1/
+
+   35  java -version
+   
+       sudo apt-get update
+   43  sudo apt-get install software-properties-common python-software-properties
+   44  sudo apt-add-repository ppa:webupd8team/java
+   45  sudo apt-get update
+   46  sudo apt-get install oracle-java8-installer
+
+   47  jps
+   48  bin/kafka-server-start.sh config/server.properties
+   49  jps
+   50  cd ..
+   51  ll
+   52  cd zookeeper-3.4.9/
+   53  bin/zkServer.sh start conf/zoo.cfg
+   zkServer.sh start
+   54  jps
+   55  cd ..
+   56  ll
+   57  cd kafka_2.12-0.10.2.1/
+   58  ll
+   59  bin/kafka-server-start.sh config/server.properties
+   60  jps
+
+bin/kafka-server-stop.sh config/server.properties
+
+
+*******************************クラスタ**************************
+
+docker commit kafka1 kafka:20170502
+
+docker run -it --hostname kafka1 --name kafka1 --net bridge777 --ip 172.18.0.21 -p 12101:22 -p 12102:80 -p 12103:8080 -p 12104:2181 -p 12105:9092 -v /storage/docker/share:/share kafka:20170502 /bin/bash
+docker run -it --hostname kafka2 --name kafka2 --net bridge777 --ip 172.18.0.22 -p 12201:22 -p 12202:80 -p 12203:8080 -p 12204:2181 -p 12205:9093 -v /storage/docker/share:/share kafka:20170502 /bin/bash
+docker run -it --hostname kafka3 --name kafka3 --net bridge777 --ip 172.18.0.23 -p 12301:22 -p 12302:80 -p 12303:8080 -p 12304:2181 -p 12305:9094 -v /storage/docker/share:/share kafka:20170502 /bin/bash
