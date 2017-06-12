@@ -1,0 +1,147 @@
+実行してみる
+1. ブローカーの起動
+ターミナルからmosquittoとコマンドを実行。コンソールに以下の内容が表示されたらok。
+
+1463851949: mosquitto version 1.4.8 (build date 2016-02-14 11:22:37-0800) starting
+1463851949: Using default config.
+1463851949: Opening ipv4 listen socket on port 1883.
+1463851949: Opening ipv6 listen socket on port 1883.
+2. パブリッシャーからのメッセージ送信
+Publisherのメインクラスを実行。Githubにあるサンプルプログラムはgradleを使っているので、以下のタスクを実行することで、メッセージを送信することが可能。
+
+gradle -q publish
+コンソールログに以下の内容が出力される。
+
+[main] INFO mqtt.publish.MqttPublisher - Connecting to broker: tcp://localhost:1883
+[main] INFO mqtt.publish.MqttPublisher - Connected and publishing message: qos -> 1, message -> Message from Mqtt Publish Sample
+[main] INFO mqtt.publish.MqttPublisher - Message published and Disconneting broker
+[main] INFO mqtt.publish.MqttPublisher - Disconnected
+2行目から3行目にかけてメッセージが正常に送信されたことが出力されている。
+
+その結果、ブローカーを実行したコンソール上には
+
+463852292: New client connected from 127.0.0.1 as Publisher01 (c0, k60).
+1463852292: Client Publisher01 disconnected.
+と出力されており、ブローカー側から見てもパブリッシャーから接続があったことがわかる。
+
+サブスクライバーのメッセージ受信
+最後にサブスクライバーのメインクラスを実行する。こちらもサンプルプログラムでは以下のタスクを実行する。
+
+gradle -q subscribe
+すると以下のログが出力される。
+
+[main] INFO mqtt.subscribe.MqttSubscriber - Connecting to broker: tcp://localhost:1883
+[main] INFO mqtt.subscribe.MqttSubscriber - Connected and subscribing message: qos -> 1, topic -> top/second/third
+[MQTT Call: Subscriber01] INFO mqtt.subscribe.MqttSubscriber - Message arrived
+[MQTT Call: Subscriber01] INFO mqtt.subscribe.MqttSubscriber - Topic:
+[MQTT Call: Subscriber01] INFO mqtt.subscribe.MqttSubscriber - Message: Message from Mqtt Publish Sample
+[main] INFO mqtt.subscribe.MqttSubscriber - Please press any key if you would disconnect to broker.
+下から2行目にパブリッシャー側から送られたメッセージが出力されている。
+
+サブスクライバーのコンソールで何かキーを打って、プログラムを終了させると、ブローカー側のコンソールログには以下のように出力される。
+
+1463852522: New client connected from 127.0.0.1 as Subscriber01 (c0, k60).
+1463852666: Client Subscriber01 disconnected.
+
+
+Mosquiito の導入
+
+MQTT の broker として Mosquitto を利用します。
+
+Mosquitto
+Ubuntu へのインストール手順を示します。apt-get で導入できるバージョンは MQTT の v3.1.1 に対応していない古いバージョンため、ソースからインストールします。
+
+# 依存ライブラリの導入
+apt-get install gcc make g++ uuid-dev libssl-dev libc-ares-dev 
+
+# ソースからインストール
+cd /usr/local/src
+sudo wget http://mosquitto.org/files/source/mosquitto-1.4.3.tar.gz
+sudo tar zxvf mosquitto-1.4.3.tar.gz
+cd mosquitto-1.4.3
+sudo make && make install
+
+# 起動
+mosquitto
+最低限利用するだけなら設定変更は必要ありません。正常に起動すると port1883 で Listen します。
+
+Publisher の用意
+
+メッセージを送る Publisher を用意します。パッケージとして paho-mqtt を利用します。
+
+paho-mqtt 1.1 : Python Package Index
+paho-mqtt は pip インストール可能です。Python 3.4.3 で動作確認済みです。
+
+pip install paho-mqtt
+Publisher を用意します。
+
+from time import sleep
+import paho.mqtt.client as mqtt
+
+host = '127.0.0.1'
+port = 1883
+topic = 'iktakahiro/a'
+
+# インスタンス作成時に protocol v3.1.1 を指定します
+client = mqtt.Client(protocol=mqtt.MQTTv311)
+
+client.connect(host, port=port, keepalive=60)
+
+for i in range(3):
+    client.publish(topic, 'ham')
+    sleep(0.2)
+
+client.disconnect()
+スクリプト pub.py を実行してみて、mosquitto をフォアグラウンドで実行しているコンソールに以下のように表示されていれば接続できていると思われます。
+
+1441422450: New client connected from 10.0.2.2 as paho/1F1DC7CD0CC085DF16 (c1, k60).
+1441422451: Client paho/1F1DC7CD0CC085DF16 disconnected.
+Subscriber の用意
+
+Publisher が送ったメッセージを受け取る Subscriber を用意します。
+
+import paho.mqtt.client as mqtt
+
+host = '127.0.0.1'
+port = 1883
+topic = 'iktakahiro/a'
+
+def on_connect(client, userdata, flags, respons_code):
+    print('status {0}'.format(respons_code))
+
+    client.subscribe(topic)
+
+def on_message(client, userdata, msg):
+    print(msg.topic + ' ' + str(msg.payload))
+
+if __name__ == '__main__':
+
+    # Publisherと同様に v3.1.1を利用
+    client = mqtt.Client(protocol=mqtt.MQTTv311)
+
+    client.on_connect = on_connect
+    client.on_message = on_message
+
+    client.connect(host, port=port, keepalive=60)
+
+    # 待ち受け状態にする
+    client.loop_forever()
+topic は Publisher で利用したものと揃えておきます。on_connect() や on_message() は Callback関数で、状況に応じて呼び出されます。
+
+動作確認
+
+sub.py を実行後に、pub.py を実行します。sub.py を実行した側のコンソールに以下のように表示されていれば成功です。
+
+status 0
+iktakahiro/a:b'ham'
+iktakahiro/a:b'ham'
+iktakahiro/a:b'ham'
+
+
+
+
+*******************************
+docker network create --subnet 172.19.0.0/16 bridge-iot
+
+docker run -it --hostname mqtt --name mqtt --net bridge-iot --ip 172.19.0.99 \
+-p 19901:22 -p 19902:80 -p 19903:8080 -p 1883:1883 -p 19905:8966 -v /storage/docker/share:/share ubuntu:14.04.5 /bin/bash
