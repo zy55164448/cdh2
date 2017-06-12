@@ -1,0 +1,80 @@
+docker run -it --hostname elsearch --name elsearch --net bridge777 --ip 172.18.0.11 \
+ -p 11101:22 -p 11102:80 -p 11103:8080 -p 11104:1883 -p 11105:8966 -p 11106:9200 \
+ -v /storage/docker/share:/share kafka:20170502 /bin/bash
+ 
+ 
++++++++++++++++++++++++++++ OK ++++++++++++++++++++++++
+   64  wget -qO - https://packages.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+   65  ll
+   66  echo "deb http://packages.elastic.co/elasticsearch/2.x/debian stable main" | sudo tee -a /etc/apt/sources.list.d/elasticsearch-2.x.list
+   67  sudo apt-get update && sudo apt-get install elasticsearch
+   68  sudo update-rc.d elasticsearch defaults 95 10
+   
+   69  sudo /etc/init.d/elasticsearch start
+   
+
+   71  apt-get install vim
+   72  vi /etc/init.d/elasticsearch
+   73  vi /etc/elasticsearch/elasticsearch.yml
+   
+   74  sudo /etc/init.d/elasticsearch restar
+   
+   
+   
+   76  apt-get install curl
+   77  curl 'http://localhost:9200/_nodes/process?pretty'   
+   
+
+
+
+
+
+
+
+
+
+
+++++++++++++++++++ëÄçÏ++++++++++++++++++++++
+
+curl -XPUT "http://localhost:9200/movies/movie/1" -d'
+{
+    "title": "The Godfather",
+    "director": "Francis Ford Coppola",
+    "year": 1972,
+    "genres": ["Crime", "Drama"]
+}'
+
+
+
+
+curl -XGET "http://localhost:9200/movies/movie/1" -d ''
+
+****************************************************************************************************************
+****************************************************************************************************************
+
+
+docker run -it --hostname kibana --name kibana --net bridge777 --ip 172.18.0.12 \
+ -p 11201:22 -p 11202:80 -p 11203:8080 -p 11204:1883 -p 11205:8966 -p 11206:9200 -p 11207:5601 \
+ -v /storage/docker/share:/share kafka:20170502 /bin/bash
+ 
+ 
+   64  wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+   65  sudo apt-get install apt-transport-https
+   66  echo "deb https://artifacts.elastic.co/packages/5.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-5.x.list
+   67  sudo apt-get update
+   68  sudo apt-get install elasticsearch
+   69  jps
+   70  sudo /usr/share/elasticsearch/bin/elasticsearch-plugin install analysis-kuromoji
+   71  sudo apt-get install kibana
+   72  sudo service kibana start
+   73  jps
+   74  ps aux|grep kibana
+   75  vi /etc/kibana/kibana.yml
+        ÅÀ
+   76  apt-get install vim
+   77  vi /etc/kibana/kibana.yml
+         ÅÀserver.host: "0.0.0.0"
+   78  sudo service kibana stop
+   79  jps
+   80  sudo service kibana start
+   81  history
