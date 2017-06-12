@@ -1,0 +1,15 @@
+export PATH=/opt/zookeeper/bin:$PATH
+
+cd /opt/zookeeper/conf
+cp zoo_sample.cfg zoo.cfg
+
+cd /opt/zookeeper/
+bin/zkServer.sh start conf/zoo.cfg
+
+root@iot:/opt/zookeeper# jps
+4689 Worker
+4818 QuorumPeerMain
+4585 Master
+4845 Jps
+
+

@@ -1,0 +1,21 @@
+   35  cp  /share/spark-2.1.1-bin-hadoop2.7.tgz .
+   36  ll
+   37  tar -zxvf spark-2.1.1-bin-hadoop2.7.tgz
+   38  ll
+   39  mv spark-2.1.1-bin-hadoop2.7/ spark
+   40  ll
+   41  ls /etc/profile.d/
+   42  sudo vi /etc/profile.d/spark.sh
+   43  source /etc/profile
+   44  spark-shell --version
+   45  spark-shell
+   46  history
+   
+   
+sbin/start-master.sh -h localhost -p 7077
+sbin/start-slave.sh spark://localhost:7077
+
+
+http://192.168.3.51:16603
+
+

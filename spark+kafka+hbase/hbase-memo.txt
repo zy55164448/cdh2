@@ -1,0 +1,32 @@
+cp /share/hbase-1.1.10-bin.tar.gz .
+ll
+tar -zxvf hbase-1.1.10-bin.tar.gz
+mv hbase-1.1.10/ hbase
+
+vi hbase-env.sh
+   Å®export JAVA_HOME=/usr/lib/jvm/java-8-oracle
+
+vi conf/hbase-site.xml
+
+  <property>
+    <name>hbase.rootdir</name>
+    <value>file:///tmp/hbase-${user.name}/hbase</value>
+  </property>
+  <property>
+    <name>hbase.zookeeper.property.dataDir</name>
+    <value>/tmp/zookeeper</value>
+  </property>
+  <property>
+    <name>hbase.zookeeper.quorum</name>
+    <value>localhost</value>
+  </property>
+  <property>
+    <name>hbase.zookeeper.property.clientPort</name>
+    <value>2182</value>
+  </property>
+  
+  
+  
+++++++++++++++++++ãNìÆ++++++++++++++++
+./bin/start-hbase.sh
+./bin/stop-hbase.sh
