@@ -1,0 +1,2 @@
+１）netcat-win32-1.11.zipを適当に解凍
+２）cmd で　nc -L -p 9999
